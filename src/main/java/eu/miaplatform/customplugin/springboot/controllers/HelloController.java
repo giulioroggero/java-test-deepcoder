@@ -16,46 +16,73 @@
 
 package eu.miaplatform.customplugin.springboot.controllers;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import eu.miaplatform.customplugin.springboot.CPController;
+import eu.miaplatform.customplugin.springboot.CPRequest;
 import eu.miaplatform.customplugin.springboot.CPStatus;
 import eu.miaplatform.customplugin.springboot.CPStatusBody;
 import eu.miaplatform.customplugin.springboot.models.Hello;
-import eu.miaplatform.customplugin.springboot.CPController;
-import eu.miaplatform.customplugin.springboot.CPRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @Api(value = "helloController")
 public class HelloController extends CPController {
 
-  @GetMapping("/hello")
+  @GetMapping("/hello/{names}")
   @ApiOperation(value = "Say hello")
   @ResponseBody
-  public Hello sayHello(@ApiIgnore @ModelAttribute(CP_REQUEST) CPRequest cpRequest) {
+  public Hello sayHello(@PathVariable final String names) {
 
-    cpRequest.getHeadersPropagator().getHeaders().forEach(header ->
-      logger.info("headerName: " + header.getName() + " - headerValue: " + header.getValue())
-    );
-    logger.info("Ciao");
-    return new Hello("Ciao");
+    String salutation = ""; 
+
+    String god = "Elena";
+    String admin = "Giulio";
+    String user1 = "Edo";
+    String user2 = "Artu";
+
+    String[] namesArray = names.split(",");
+
+    for (String name : namesArray) {
+      if (name.equals(god)) {
+        salutation += " super admin Elena! ";
+      }
+
+      if (name.equals(admin)) {
+        salutation += " admin Giulio";
+      }
+
+      if (name.equals(user2)) {
+        salutation += " user Artu! ";
+      }
+
+      if (name.equals(user1)) {
+        salutation += " user Edo! ";
+      }
+
+    }
+
+    return new Hello(salutation);
   }
 
   @Override
-  public ResponseEntity readinessHandler(CPRequest cpRequest) {
+  public ResponseEntity readinessHandler(final CPRequest cpRequest) {
     return customPluginService.addHandler(cpRequest, cpReq -> {
-      CPStatusBody st = new CPStatusBody();
+      final CPStatusBody st = new CPStatusBody();
       st.setStatus(CPStatusBody.OK);
       return CPStatus.statusOk(st);
     });
   }
 
   @Override
-  public ResponseEntity healthinessHandler(CPRequest cpRequest) {
+  public ResponseEntity healthinessHandler(final CPRequest cpRequest) {
     return customPluginService.addHandler(cpRequest, cpReq -> {
-      CPStatusBody st = new CPStatusBody();
+      final CPStatusBody st = new CPStatusBody();
       st.setStatus(CPStatusBody.OK);
       return CPStatus.statusOk(st);
     });
