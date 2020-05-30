@@ -16,6 +16,13 @@
 
 package eu.miaplatform.customplugin.springboot.controllers;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +55,8 @@ public class HelloController extends CPController {
 
     String[] namesArray = names.split(",");
 
+    List<String> people = findPeople(null, names);
+
     for (String name : namesArray) {
       if (name.equals(god)) {
         salutation += " super admin Elena! ";
@@ -68,6 +77,26 @@ public class HelloController extends CPController {
     }
 
     return new Hello(salutation);
+  }
+
+  protected List<String> findPeople(Connection connection, String peopleList){
+    List<String> res = new ArrayList<String>();
+
+    try {
+      Statement statement = connection.createStatement();
+      String query = "SELECT * FROM users where name IN (" + peopleList + ")";
+      ResultSet rs;
+      rs = statement.executeQuery(query);
+      
+      while ( rs.next() ) {
+          res.add(rs.getString("Lname"));
+      }
+      
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return res;
   }
 
   @Override
